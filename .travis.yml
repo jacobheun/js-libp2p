@@ -16,16 +16,14 @@ script: npx nyc -s npm run test:node -- --bail
 after_success: npx nyc report --reporter=text-lcov > coverage.lcov && npx codecov
 
 jobs:
-  allow_failures:
-    - stage: check
-      script:
-        - npx aegir build --bundlesize
-
   include:
     - stage: check
       script:
         - npx aegir dep-check -- -i wrtc -i electron-webrtc
         - npm run lint
+    - allow_failures:
+        - script: npx aegir build --bundlesize
+          name: "Bundle Size"
 
     - stage: test
       name: chrome
