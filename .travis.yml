@@ -27,7 +27,8 @@ jobs:
         - npm run lint
 
     - stage: check
-      script: npx aegir build --bundlesize
+      script:
+        - npx aegir build --bundlesize
       name: "Bundle Size"
 
     - stage: test
