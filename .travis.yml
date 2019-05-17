@@ -16,10 +16,6 @@ script: npx nyc -s npm run test:node -- --bail
 after_success: npx nyc report --reporter=text-lcov > coverage.lcov && npx codecov
 
 jobs:
-  fast_finish: true
-  allow_failures:
-    name: "Bundle Size"
-
   include:
     - stage: check
       script:
