@@ -17,7 +17,9 @@ after_success: npx nyc report --reporter=text-lcov > coverage.lcov && npx codeco
 
 jobs:
   allow_failures:
-    - script: npx aegir build --bundlesize
+    - stage: check
+      script:
+        - npx aegir build --bundlesize
 
   include:
     - stage: check
