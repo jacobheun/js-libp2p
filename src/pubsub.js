@@ -2,14 +2,11 @@
 
 const nextTick = require('async/nextTick')
 const { messages, codes } = require('./errors')
-const FloodSub = require('libp2p-floodsub')
 
 const errCode = require('err-code')
 
 module.exports = (node) => {
-  const floodSub = new FloodSub(node)
-
-  node._floodSub = floodSub
+  const pubsub = node._pubsub
 
   return {
     subscribe: (topic, options, handler, callback) => {
@@ -19,16 +16,16 @@ module.exports = (node) => {
         options = {}
       }
 
-      if (!node.isStarted() && !floodSub.started) {
+      if (!node.isStarted() && !pubsub.started) {
         return nextTick(callback, errCode(new Error(messages.NOT_STARTED_YET), codes.PUBSUB_NOT_STARTED))
       }
 
       function subscribe (cb) {
-        if (floodSub.listenerCount(topic) === 0) {
-          floodSub.subscribe(topic)
+        if (pubsub.listenerCount(topic) === 0) {
+          pubsub.subscribe(topic)
         }
 
-        floodSub.on(topic, handler)
+        pubsub.on(topic, handler)
         nextTick(cb)
       }
 
@@ -36,17 +33,17 @@ module.exports = (node) => {
     },
 
     unsubscribe: (topic, handler, callback) => {
-      if (!node.isStarted() && !floodSub.started) {
+      if (!node.isStarted() && !pubsub.started) {
         return nextTick(callback, errCode(new Error(messages.NOT_STARTED_YET), codes.PUBSUB_NOT_STARTED))
       }
       if (!handler && !callback) {
-        floodSub.removeAllListeners(topic)
+        pubsub.removeAllListeners(topic)
       } else {
-        floodSub.removeListener(topic, handler)
+        pubsub.removeListener(topic, handler)
       }
 
-      if (floodSub.listenerCount(topic) === 0) {
-        floodSub.unsubscribe(topic)
+      if (pubsub.listenerCount(topic) === 0) {
+        pubsub.unsubscribe(topic)
       }
 
       if (typeof callback === 'function') {
@@ -55,7 +52,7 @@ module.exports = (node) => {
     },
 
     publish: (topic, data, callback) => {
-      if (!node.isStarted() && !floodSub.started) {
+      if (!node.isStarted() && !pubsub.started) {
         return nextTick(callback, errCode(new Error(messages.NOT_STARTED_YET), codes.PUBSUB_NOT_STARTED))
       }
 
@@ -63,21 +60,21 @@ module.exports = (node) => {
         return nextTick(callback, errCode(new Error('data must be a Buffer'), 'ERR_DATA_IS_NOT_A_BUFFER'))
       }
 
-      floodSub.publish(topic, data, callback)
+      pubsub.publish(topic, data, callback)
     },
 
     ls: (callback) => {
-      if (!node.isStarted() && !floodSub.started) {
+      if (!node.isStarted() && !pubsub.started) {
         return nextTick(callback, errCode(new Error(messages.NOT_STARTED_YET), codes.PUBSUB_NOT_STARTED))
       }
 
-      const subscriptions = Array.from(floodSub.subscriptions)
+      const subscriptions = Array.from(pubsub.subscriptions)
 
       nextTick(() => callback(null, subscriptions))
     },
 
     peers: (topic, callback) => {
-      if (!node.isStarted() && !floodSub.started) {
+      if (!node.isStarted() && !pubsub.started) {
         return nextTick(callback, errCode(new Error(messages.NOT_STARTED_YET), codes.PUBSUB_NOT_STARTED))
       }
 
@@ -86,7 +83,7 @@ module.exports = (node) => {
         topic = null
       }
 
-      const peers = Array.from(floodSub.peers.values())
+      const peers = Array.from(pubsub.peers.values())
         .filter((peer) => topic ? peer.topics.has(topic) : true)
         .map((peer) => peer.info.id.toB58String())
 
@@ -94,7 +91,7 @@ module.exports = (node) => {
     },
 
     setMaxListeners (n) {
-      return floodSub.setMaxListeners(n)
+      return pubsub.setMaxListeners(n)
     }
   }
 }

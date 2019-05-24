@@ -19,8 +19,8 @@ describe('libp2p creation', () => {
   it('should be able to start and stop successfully', (done) => {
     createNode([], {
       config: {
-        EXPERIMENTAL: {
-          pubsub: true
+        pubsub: {
+          enabled: true
         },
         dht: {
           enabled: true
@@ -32,7 +32,7 @@ describe('libp2p creation', () => {
       let sw = node._switch
       let cm = node.connectionManager
       let dht = node._dht
-      let pub = node._floodSub
+      let pub = node._pubsub
 
       sinon.spy(sw, 'start')
       sinon.spy(cm, 'start')
@@ -77,13 +77,13 @@ describe('libp2p creation', () => {
   it('should not create disabled modules', (done) => {
     createNode([], {
       config: {
-        EXPERIMENTAL: {
-          pubsub: false
+        pubsub: {
+          enabled: false
         }
       }
     }, (err, node) => {
       expect(err).to.not.exist()
-      expect(node._floodSub).to.not.exist()
+      expect(node._pubsub).to.not.exist()
       done()
     })
   })

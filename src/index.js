@@ -121,8 +121,11 @@ class Libp2p extends EventEmitter {
       })
     }
 
-    // enable/disable pubsub
-    if (this._config.EXPERIMENTAL.pubsub) {
+    // start pubsub
+    if (this._config.pubsub.enabled) {
+      const Pubsub = this._modules.pubsub
+
+      this._pubsub = new Pubsub(this)
       this.pubsub = pubsub(this)
     }
 
@@ -395,8 +398,8 @@ class Libp2p extends EventEmitter {
         }
       },
       (cb) => {
-        if (this._floodSub) {
-          return this._floodSub.start(cb)
+        if (this._pubsub) {
+          return this._pubsub.start(cb)
         }
         cb()
       },
@@ -434,8 +437,8 @@ class Libp2p extends EventEmitter {
         )
       },
       (cb) => {
-        if (this._floodSub) {
-          return this._floodSub.stop(cb)
+        if (this._pubsub) {
+          return this._pubsub.stop(cb)
         }
         cb()
       },
