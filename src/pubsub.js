@@ -56,8 +56,12 @@ module.exports = (node) => {
         return nextTick(callback, errCode(new Error(messages.NOT_STARTED_YET), codes.PUBSUB_NOT_STARTED))
       }
 
+      if (!Buffer.isBuffer(data) && typeof data !== 'string') {
+        return nextTick(callback, errCode(new Error('data must be a Buffer or a String'), 'ERR_DATA_IS_NOT_VALID'))
+      }
+
       if (!Buffer.isBuffer(data)) {
-        return nextTick(callback, errCode(new Error('data must be a Buffer'), 'ERR_DATA_IS_NOT_A_BUFFER'))
+        data = Buffer.from(data)
       }
 
       pubsub.publish(topic, data, callback)
