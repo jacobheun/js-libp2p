@@ -123,10 +123,7 @@ class Libp2p extends EventEmitter {
 
     // start pubsub
     if (this._config.pubsub.enabled) {
-      const Pubsub = this._modules.pubsub
-
-      this._pubsub = new Pubsub(this)
-      this.pubsub = pubsub(this)
+      this.pubsub = pubsub(this, this._modules.pubsub)
     }
 
     // Attach remaining APIs
@@ -398,8 +395,8 @@ class Libp2p extends EventEmitter {
         }
       },
       (cb) => {
-        if (this._pubsub) {
-          return this._pubsub.start(cb)
+        if (this.pubsub) {
+          return this.pubsub.start(cb)
         }
         cb()
       },
@@ -437,8 +434,8 @@ class Libp2p extends EventEmitter {
         )
       },
       (cb) => {
-        if (this._pubsub) {
-          return this._pubsub.stop(cb)
+        if (this.pubsub) {
+          return this.pubsub.stop(cb)
         }
         cb()
       },
