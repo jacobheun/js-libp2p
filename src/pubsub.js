@@ -6,7 +6,7 @@ const { messages, codes } = require('./errors')
 const errCode = require('err-code')
 
 module.exports = (node, Pubsub) => {
-  const pubsub = new Pubsub(node)
+  const pubsub = new Pubsub(node, { emitSelf: true })
 
   return {
     subscribe: (topic, options, handler, callback) => {
