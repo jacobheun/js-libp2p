@@ -40,13 +40,7 @@ module.exports = (node) => {
       if (!node.isStarted() && !floodSub.started) {
         return nextTick(callback, errCode(new Error(messages.NOT_STARTED_YET), codes.PUBSUB_NOT_STARTED))
       }
-      if (!callback) {
-        // we will always be passed a callback because of promisify. If we weren't passed one
-        // really it means no handler was passed..
-        callback = handler
-        handler = null
-      }
-      if (!handler) {
+      if (!handler && !callback) {
         floodSub.removeAllListeners(topic)
       } else {
         floodSub.removeListener(topic, handler)
